@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>To my dearest, Jaden ❤️</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+    * { box-sizing: border-box; }
+  body {
+    margin: 0; background: #fff0f5; font-family: 'Poppins', sans-serif;
+    display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 10px;
+  }
+.container {
+    background: white; border-radius: 25px; padding: 20px; max-width: 420px; width: 100%;
+    box-shadow: 0 10px 30px rgba(233,30,99,0.15); text-align: center;
+  }
+.level-tabs { display: flex; gap: 8px; margin-bottom: 15px; }
+.level-btn {
+    flex:1; background: #f0f0f0; color: #888; border: none; padding: 10px; border-radius: 15px;
+    font-weight: 600; cursor: pointer; font-size: 14px;
+  }
+.level-btn.active { background: #ff6b9d; color: white; }
+.level-btn.locked { background: #f0f0f0; color: #ccc; }
+  #game-area {
+    margin: 15px 0; min-height: 320px; border: 2px dashed #ffb6d5; border-radius: 20px;
+    padding: 15px; position: relative; overflow: hidden; background: linear-gradient(to bottom, #fff0f5, #ffe0f0);
+  }
+.falling-item { position: absolute; font-size: 32px; pointer-events: none; }
+.basket-container {
+    position: absolute; bottom: 10px; left: 40%;
+    background: #ffb6d5; padding: 15px 25px; border-radius: 25px; touch-action: none;
+}
+.basket { font-size: 45px; }
+.progress-bar { height: 8px; background: #ffe0f0; border-radius: 10px; overflow: hidden; margin: 10px 0; }
+.progress { height: 100%; background: #ff6b9d; width: 0%; transition: 0.3s; }
+.card-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.card {
+    aspect-ratio: 1; border-radius: 12px; font-size: 24px; display: flex; justify-content: center; align-items: center; cursor: pointer;
+    transition: 0.2s; user-select: none; border: 3px solid transparent;
+  }
+.card.collected { opacity: 0.2; pointer-events: none; }
+.memory-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.mem-card { aspect-ratio: 1; background: #ffe0f0; border-radius: 12px; font-size: 28px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.1s; }
+  #popup {
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 100;
+  }
+  #popup-box {
+    background: white; padding: 25px; border-radius: 20px; max-width: 350px; text-align: center;
+  }
+  #letter-popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 100; }
+  #letter-box { background: white; padding: 30px; border-radius: 20px; max-width: 400px; max-height: 80vh; overflow-y: auto; text-align: left; }
+.pink-btn { background: #ff6b9d; color: white; border: none; padding: 12px 20px; border-radius: 20px; cursor: pointer; margin: 5px; font-family: 'Poppins'; font-weight: 600; }
+  #musicControls { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 10px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2 style="color:#ff6b9d; margin:5px 0">to my dearest, Jaden ❤️</h2>
+  <div class="level-tabs">
+    <button class="level-btn active" id="btn1" onclick="startLevel(1)">Level 1</button>
+    <button class="level-btn locked" id="btn2" onclick="startLevel(2)">Level 2 🔒</button>
+    <button class="level-btn locked" id="btn3" onclick="startLevel(3)">Level 3 🔒</button>
+  </div>
+  <div id="game-info"></div>
+  <div id="game-area"></div>
+  <div id="musicControls">
+    <button onclick="toggleMusic()" class="pink-btn" id="musicBtn">🎵 Play Music</button>
+  </div>
+</div>
+
+<div id="popup">
+  <div id="popup-box">
+    <h2 style="color:#ff6b9d">Congratulations!</h2>
+    <p id="popup-text"></p>
+    <button class="pink-btn" onclick="closePopup()" id="popupBtn">Continue</button>
+  </div>
+</div>
+
+<div id="letter-popup">
+  <div id="letter-box">
+    <h2 style="text-align:center; color:#ff6b9d">💌 Open with care</h2>
+    <p id="typing-letter"></p>
+    <button onclick="closeLetter()" class="pink-btn" style="width:100%">Close</button>
+  </div>
+</div>
+
+<audio id="bgm" loop></audio> <!-- KOSONGIN DULU -->
+
+<script>
+let currentLevel = 1;
+let musicOn = false;
+const bgm = document.getElementById('bgm');
+
+// FIX MUSIC: LOAD MANUAL
+bgm.src = "music.mp3";
+
+function toggleMusic(){
+  if(!musicOn){
+    bgm.play().then(()=>{
+      musicOn = true;
+      document.getElementById('musicBtn').innerText = '🔇 Pause Music';
+    }).catch((e)=>{
+      console.log(e);
+      alert("Gagal nyalain musik 😭 Cek: 1. File music.mp3 ada di repo? 2. Coba klik 2x");
+    });
+  } else {
+    bgm.pause();
+    musicOn = false;
+    document.getElementById('musicBtn').innerText = '🎵 Play Music';
+  }
+}
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+function startLevel(lvl){
+  if(document.getElementById('btn'+lvl).classList.contains('locked')) return;
+  document.querySelectorAll('.level-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('btn'+lvl).classList.add('active');
+  let area = document.getElementById('game-area');
+  area.innerHTML = '';
+
+  if(lvl === 1){
+    let itemsLeft = 25;
+    document.getElementById('game-info').innerHTML = `<h3 style="color:#ff6b9d">Sweet Quest: Level 1</h3><p>Catch the falling items into your basket!</p><p>Catch 25 items to win!</p><div class="progress-bar"><div class="progress" id="progress"></div></div><p style="color:#ff6b9d; font-weight:600">Items left to catch: <span id="score">25</span></p>`;
+    let basketContainer = document.createElement('div');
+    basketContainer.className='basket-container';
+    basketContainer.innerHTML = '<div class="basket">🧺</div>';
+    area.appendChild(basketContainer);
+    basketContainer.addEventListener('touchmove', (e)=>{
+      let touch = e.touches[0];
+      let rect = area.getBoundingClientRect();
+      let x = touch.clientX - rect.left - 40;
+      if(x<0) x=0; if(x>rect.width-80) x=rect.width-80;
+      basketContainer.style.left = x + 'px';
+    });
+    let interval = setInterval(()=>{
+      let item = document.createElement('div'); item.className='falling-item';
+      item.innerHTML = ['🍓','🧁','🍰','⭐','🍪','🧸'][Math.floor(Math.random()*6)];
+      item.style.left = Math.random()*80 + '%'; item.style.top = '0px';
+      area.appendChild(item);
+      let t=0;
+      let fall=setInterval(()=>{
+        t+=2; item.style.top=t+'px';
+        let bR = basketContainer.getBoundingClientRect(); let iR = item.getBoundingClientRect();
+        if(iR.bottom >= bR.top && iR.left > bR.left && iR.right < bR.right){
+          clearInterval(fall); item.remove(); itemsLeft--;
+          document.getElementById('score').innerText=itemsLeft;
+          document.getElementById('progress').style.width = ((25-itemsLeft)/25*100)+'%';
+          if(itemsLeft<=0){clearInterval(interval); showPopup("You caught all the items! Here's your secret key:", "KEY LEVEL 1 ⭐", 2);}
+        }
+        if(t>300){clearInterval(fall); item.remove();}
+      },20);
+    }, 500);
+  }
+
+  if(lvl === 2){
+    let collected = 0;
+    document.getElementById('game-info').innerHTML = `<h3 style="color:#ff6b9d">Sweet Quest: Level 2</h3><p>Select cards of the same color!</p><p>Collected: <span id="score">0</span>/25</p>`;
+    let colors = ['#ffd6e8','#d6f0ff','#d6ffd9','#fff0d6','#e8d6ff'];
+    let emojis = ['🍰','🧸','🍦','🍓','🍎'];
+    let allCards = [];
+    for(let i=0; i<5; i++){ for(let j=0; j<5; j++){ allCards.push({color: colors[i], emoji: emojis[i]}); } }
+    shuffleArray(allCards);
+    let grid = document.createElement('div'); grid.className='card-grid';
+    allCards.forEach(data=>{
+      let card = document.createElement('div');
+      card.className='card'; card.style.background=data.color; card.innerHTML=data.emoji;
+      card.onclick=()=>{
+        if(!card.classList.contains('collected')){
+          card.classList.add('collected'); card.style.border='3px solid #ff6b9d';
+          collected++; document.getElementById('score').innerText=collected;
+          if(collected>=25){showPopup("You completed all color streaks!", "KEY LEVEL 2 🍓", 3);}
+        }
+      }
+      grid.appendChild(card);
+    });
+    area.appendChild(grid);
+  }
+
+  if(lvl === 3){
+    let time=25; let found=0; let firstCard=null; let lock=false;
+    let baseItems = ['🍓','🍓','🍦','🍦','🧁','🧁','⭐','⭐','🧸'];
+    let currentItems = [...baseItems];
+    document.getElementById('game-info').innerHTML = `<h3 style="color:#ff6b9d">Sweet Quest: Level 3</h3><p>Time Left: <span id="time">25</span>s</p><p>Memorize the emojis!</p><p>Sets found: <span id="score">0</span>/3</p>`;
+    function createGrid(){
+      area.innerHTML = '';
+      shuffleArray(currentItems);
+      let grid = document.createElement('div'); grid.className='memory-grid';
+      currentItems.forEach(emoji=>{
+        let card = document.createElement('div');
+        card.className='mem-card';
+        card.dataset.emoji=emoji;
+        card.innerHTML=emoji;
+        setTimeout(()=>{ if(card.innerHTML!= '❓') card.innerHTML='❓' }, 3000);
+        card.onclick=()=>{
+          if(lock || card.innerHTML!='❓' || card.style.opacity=='0.3') return;
+          card.innerHTML=emoji; card.style.background='#fff';
+          if(!firstCard){ firstCard=card; }
+          else {
+            lock=true;
+            if(firstCard.dataset.emoji==card.dataset.emoji){
+              found++; document.getElementById('score').innerText=found;
+              firstCard.style.opacity='0.3'; card.style.opacity='0.3';
+              firstCard=null; lock=false;
+              if(found==3){clearInterval(timer); setTimeout(showLetter,500);}
+            } else {
+              setTimeout(()=>{
+                firstCard.innerHTML='❓'; card.innerHTML='❓';
+                firstCard.style.background='#ffe0f0'; card.style.background='#ffe0f0';
+                firstCard=null;
+                let remainingItems = [];
+                document.querySelectorAll('.mem-card').forEach(c=>{
+                  if(c.style.opacity!= '0.3'){ remainingItems.push(c.dataset.emoji); }
+                });
+                currentItems = remainingItems;
+                createGrid();
+                lock=false;
+              },100);
+            }
+          }
+        }
+        grid.appendChild(card);
+      });
+      area.appendChild(grid);
+    }
+    createGrid();
+    let timer = setInterval(()=>{time--; document.getElementById('time').innerText=time; if(time<=0)clearInterval(timer);},1000);
+  }
+}
+
+function showPopup(text, key, nextLevel){
+  document.getElementById('popup').style.display='flex';
+  document.getElementById('popup-text').innerHTML = `${text}<br><b style="color:#ff6b9d; font-size:20px">${key}</b>`;
+  document.getElementById('popupBtn').onclick = ()=>{ closePopup(); unlockLevel(nextLevel); }
+}
+function closePopup(){ document.getElementById('popup').style.display='none'; }
+function unlockLevel(n){
+  document.getElementById('btn'+n).classList.remove('locked');
+  startLevel(n);
+}
+function showLetter(){
+  document.getElementById('letter-popup').style.display='flex';
+  const text = `happy 1st monthsarry, my love.
+
+i love you so much my heart could literally explode. my pretty boy, i love you more than you'll ever know. i'm so grateful to be your boyfriend. happy one month to my baby.
+
+thank you for making me feel loved and for making me feel like i'm enough. being with you just feels like home.
+
+you mean the absolute world to me and i really hope i never lose you. you're the sweetest, most caring, most loving boy i could ever ask for. ml, if you're having hard days, please tell me okay? you know i'll always listen to you. and thank you for letting me into your life. thank you for choosing me.
+
+i hope we get to have so many more months, so many more years together, my love. i hope we get to make a bunch of little memories along the way.
+
+please always remember to take care of yourself. and please know that my feelings for you are real and genuine. i'm not going anywhere.
+
+— with all my love, sammy`;
+  let i=0; document.getElementById('typing-letter').innerHTML='';
+  let typing=setInterval(()=>{
+    document.getElementById('typing-letter').innerHTML += text[i]==='\n'? '<br>' : text[i];
+    i++; if(i>=text.length) clearInterval(typing);
+  }, 30);
+}
+function closeLetter(){ document.getElementById('letter-popup').style.display='none'; }
+
+startLevel(1);
+</script>
+</body>
+  </html>
